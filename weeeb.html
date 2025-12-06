@@ -1,0 +1,406 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Shiv Milk Dairy & Traders</title>
+    
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=Noto+Sans+Devanagari:wght@400;500;600;700&display=swap" rel="stylesheet">
+    
+    <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+    <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+    
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+
+    <style>
+      body {
+        font-family: 'Poppins', 'Noto Sans Devanagari', sans-serif;
+      }
+      .custom-scrollbar::-webkit-scrollbar {
+        width: 8px;
+      }
+      .custom-scrollbar::-webkit-scrollbar-track {
+        background: #f1f1f1;
+        border-radius: 4px;
+      }
+      .custom-scrollbar::-webkit-scrollbar-thumb {
+        background: #888;
+        border-radius: 4px;
+      }
+      .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+        background: #555;
+      }
+      @keyframes fadeIn {
+        from { opacity: 0; transform: scale(0.95); }
+        to { opacity: 1; transform: scale(1); }
+      }
+      .animate-fadeIn {
+        animation: fadeIn 0.2s ease-out forwards;
+      }
+    </style>
+  <script type="importmap">
+{
+  "imports": {
+    "react": "https://aistudiocdn.com/react@^19.2.1",
+    "react-dom/": "https://aistudiocdn.com/react-dom@^19.2.1/",
+    "react/": "https://aistudiocdn.com/react@^19.2.1/",
+    "firebase/": "https://aistudiocdn.com/firebase@^12.6.0/",
+    "lucide-react": "https://aistudiocdn.com/lucide-react@^0.556.0"
+  }
+}
+</script>
+</head>
+  <body class="bg-slate-50 text-slate-900">
+    <div id="root"></div>
+
+    <script type="text/babel" data-presets="typescript,react">
+      const { useState, useEffect, useMemo } = React;
+
+      // --- ICONS ---
+      const IconBase = ({ children, size = 24, className = "" }) => (
+        <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}>
+          {children}
+        </svg>
+      );
+
+      const Icons = {
+        Phone: (props) => <IconBase {...props}><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path></IconBase>,
+        MapPin: (props) => <IconBase {...props}><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></IconBase>,
+        LogIn: (props) => <IconBase {...props}><path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"></path><polyline points="10 17 15 12 10 7"></polyline><line x1="15" y1="12" x2="3" y2="12"></line></IconBase>,
+        Clock: (props) => <IconBase {...props}><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></IconBase>,
+        Truck: (props) => <IconBase {...props}><rect x="1" y="3" width="15" height="13"></rect><polygon points="16 8 20 8 23 11 23 16 16 16 16 8"></polygon><circle cx="5.5" cy="18.5" r="2.5"></circle><circle cx="18.5" cy="18.5" r="2.5"></circle></IconBase>,
+        Syringe: (props) => <IconBase {...props}><path d="m18 2 4 4"></path><path d="m17 7 3-3"></path><path d="M19 9 8.7 19.3c-1 1-2.5 1-3.4 0l-.6-.6c-1-1-1-2.5 0-3.4L15 5"></path><path d="m9 11 4 4"></path><path d="m5 19-3 3"></path><path d="m14 4 6 6"></path></IconBase>,
+        Activity: (props) => <IconBase {...props}><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline></IconBase>,
+        X: (props) => <IconBase {...props}><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></IconBase>,
+        User: (props) => <IconBase {...props}><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></IconBase>,
+        Wallet: (props) => <IconBase {...props}><path d="M21 12V7a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v10a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-5Zm-6 0h6"></path></IconBase>,
+        Calendar: (props) => <IconBase {...props}><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></IconBase>,
+        MessageCircle: (props) => <IconBase {...props}><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"></path></IconBase>,
+        Check: (props) => <IconBase {...props}><polyline points="20 6 9 17 4 12"></polyline></IconBase>,
+        Quote: (props) => <IconBase {...props}><path d="M3 21c3 0 7-1 7-8V5c0-1.25-.756-2.017-2-2H4c-1.25 0-2 .75-2 1.972V11c0 1.25.75 2 2 2 1 0 1 0 1 1v1c0 1-1 2-2 2s-1 .008-1 1.031V20c0 1 0 1 1 1z"/><path d="M15 21c3 0 7-1 7-8V5c0-1.25-.757-2.017-2-2h-4c-1.25 0-2 .75-2 1.972V11c0 1.25.75 2 2 2 1 0 1 0 1 1v1c0 1-1 2-2 2s-1 .008-1 1.031V20c0 1 0 1 1 1z"/></IconBase>
+      };
+
+      // --- CONSTANTS ---
+      const PHONE_NUMBER = "+919919747247";
+      const ADDRESS = "BESIYA NIKAT SHIV MANDIR RAMNaGRA";
+      
+      // Optimized GitHub Raw URL for better performance
+      const LOGO_URL = "https://raw.githubusercontent.com/lfdigital25/image/main/logo%202nd.png";
+      
+      // Helper function for GitHub raw links
+      const getRawUrl = (path) => `https://raw.githubusercontent.com/lfdigital25/image/main/${path}`;
+
+      const TRANSLATIONS = {
+        header: {
+          title: { en: "Shiv Milk Dairy & Traders", hi: "शिव मिल्क डेयरी एंड ट्रेडर्स" },
+          login: { en: "Member Login", hi: "सदस्य लॉगिन" },
+          logout: { en: "Logout", hi: "लॉग आउट" },
+          dashboard: { en: "Dashboard", hi: "डैशबोर्ड" }
+        },
+        hero: {
+          welcome: { en: "Welcome to Shiv Milk Dairy", hi: "शिव मिल्क डेयरी में आपका स्वागत है" },
+          subtitle: { en: "Pure Milk, Quality Products, Trusted Service", hi: "शुद्ध दूध, गुणवत्तापूर्ण उत्पाद, विश्वसनीय सेवा" }
+        },
+        banners: {
+          bulkTitle: { en: "📢 Bulk Orders & Pre-Booking", hi: "📢 थोक ऑर्डर और प्री-बुकिंग" },
+          bulkDesc: { en: "Special rates for Marriage, Parties, and Bulk Milk/Paneer orders. Pre-book to ensure availability!", hi: "शादी, पार्टियों और थोक दूध/पनीर ऑर्डर के लिए विशेष दरें। उपलब्धता सुनिश्चित करने के लिए पहले से बुक करें!" },
+          preOrderBtn: { en: "Pre-Order Now", hi: "अभी प्री-ऑर्डर करें" }
+        },
+        sections: {
+          agro: { en: "Animal Nutrition & Agriculture", hi: "पशु पोषण और कृषि" },
+          dairy: { en: "Dairy & Daily Essentials", hi: "डेयरी और दैनिक आवश्यकताएं" },
+          health: { en: "Animal Disease Awareness", hi: "पशु रोग जागरूकता और बचाव" },
+          vet: { en: "Veterinary Services", hi: "पशु चिकित्सा सेवाएँ" },
+          ai: { en: "Artificial Insemination (AI)", hi: "कृत्रिम गर्भाधान (AI)" },
+          quote: { en: "Daily Thought", hi: "आज का विचार" }
+        },
+        products: {
+          viewDetails: { en: "View Details", hi: "विवरण देखें" },
+          orderNow: { en: "Order on WhatsApp", hi: "व्हाट्सएप पर ऑर्डर करें" },
+          selectOption: { en: "Select Option", hi: "विकल्प चुनें" }
+        },
+        dashboard: {
+          title: { en: "Member Profile", hi: "सदस्य प्रोफाइल" },
+        },
+        info: {
+          collectionTimes: { en: "Milk Collection Times", hi: "दूध संग्रह का समय" },
+          morning: { en: "Morning: 05:00 AM - 06:50 AM", hi: "सुबह: 05:00 AM - 06:50 AM" },
+          evening: { en: "Evening: 05:00 PM - 07:00 PM", hi: "शाम: 05:00 PM - 07:00 PM" },
+          contact: { en: "Contact Us", hi: "संपर्क करें" },
+          vetDesc: { en: "Expert consultation and high-quality Artificial Insemination (AI) services available under doctor supervision for breed improvement and disease control.", hi: "नस्ल सुधार और रोग नियंत्रण के लिए विशेषज्ञ डॉक्टर की देखरेख में उच्च गुणवत्ता वाली कृत्रिम गर्भाधान (AI) सेवाएँ और परामर्श उपलब्ध हैं।" },
+        },
+        footer: {
+          managedBy: { en: "Managed by LF DIGITAL", hi: "Managed by LF DIGITAL" },
+          proprietor: { en: "Proprietor: Mahesh Kumar Tiwari (Chhote Lal Tiwari)", hi: "प्रोप्राइटर: महेश कुमार तिवारी (छोटे लाल तिवारी)" },
+          links: {
+            title: { en: "Quick Links", hi: "कमेटी" },
+            items: { 
+              en: ["Feeder", "Milk", "Dairy Product", "Supplements", "Doctor"], 
+              hi: ["फीडर (आहार)", "दूध", "डेयरी उत्पाद", "सप्लीमेंट्स", "डॉक्टर"] 
+            }
+          }
+        }
+      };
+
+      const QUOTES = [
+        { en: "Happy animals, happy farmers.", hi: "पशु खुश, तो किसान खुश।" },
+        { en: "Pure milk is the foundation of good health.", hi: "शुद्ध दूध अच्छे स्वास्थ्य की नींव है।" },
+        { en: "Agriculture is the backbone of our culture.", hi: "कृषि हमारी संस्कृति की रीढ़ है।" }
+      ];
+
+      // --- PRODUCT DATA WITH UPDATED IMAGES ---
+      const PRODUCTS = [
+        {
+          id: 'calcium-gold', category: 'agro',
+          name: { en: "Shwetdhara Gold Calcium", hi: "श्वेतधारा गोल्ड कैल्शियम" },
+          price: 140,
+          variants: [
+            { id: '1l', name: { en: "1 Litre (Packet)", hi: "1 लीटर (पैकेट)" }, price: 140, img: getRawUrl("calcium%20packet.jpg") },
+            { id: '5l', name: { en: "5 Litre (Can)", hi: "5 लीटर (केन)" }, price: 800, img: getRawUrl("calcium%20cane.jpg") }
+          ],
+          description: { 
+            en: "Scientifically formulated supplement for strong bones and increased milk yield. Contains Calcium, Magnesium, Zinc, and Vitamins.", 
+            hi: "मजबूत हड्डियों और दूध बढ़ाने के लिए वैज्ञानिक रूप से तैयार किया गया सप्लीमेंट। इसमें कैल्शियम, मैग्नीशियम, जिंक और विटामिन शामिल हैं।" 
+          },
+          imageUrl: getRawUrl("calcium%20packet.jpg")
+        },
+        {
+          id: 'feed-50kg', category: 'agro',
+          name: { en: "Shwetdhara Animal Feed (50kg)", hi: "श्वेतधारा पशु आहार (50 किग्रा)" },
+          price: 1200,
+          description: { 
+            en: "BIS Certified feed rich in energy and protein. Ensures healthy calves and high-quality milk.", 
+            hi: "BIS प्रमाणित आहार जो ऊर्जा और प्रोटीन से भरपूर है। स्वस्थ बछड़े और उच्च गुणवत्ता वाला दूध सुनिश्चित करता है।" 
+          },
+          imageUrl: getRawUrl("pashuahar.jpg")
+        },
+        {
+          id: 'min-mix', category: 'agro',
+          name: { en: "Chelated Mineral Mixture", hi: "चिलेटेड मिनरल मिक्सचर" },
+          price: 100,
+          description: { 
+            en: "Region special mixture for better reproduction and overall health.", 
+            hi: "बेहतर प्रजनन और समग्र स्वास्थ्य के लिए क्षेत्र विशेष मिश्रण।" 
+          },
+          imageUrl: getRawUrl("chileted%20micture.jpg")
+        },
+        {
+          id: 'maize-seed', category: 'agro',
+          name: { en: "Maize Seeds (Makka)", hi: "मक्का बीज" },
+          price: 500,
+          variants: [
+            { id: 'dkc-9135', name: { en: "DKC 9135", hi: "DKC 9135" }, price: 500, img: getRawUrl("maize%209135.jpg") },
+            { id: 'dkc-9081', name: { en: "DKC 9081", hi: "DKC 9081" }, price: 700, img: getRawUrl("maize9081.jpg") }
+          ],
+          description: { 
+            en: "Premium quality maize seeds for high yield fodder.", 
+            hi: "अधिक उपज वाले चारे के लिए सर्वोत्तम गुणवत्ता वाले मक्का बीज।" 
+          },
+          imageUrl: getRawUrl("maize%209135.jpg")
+        },
+        {
+          id: 'grass-chari', category: 'agro',
+          name: { en: "Animal Grass/Chari Seeds", hi: "पशु चारा/चरी बीज" },
+          price: 350,
+          description: { en: "High-yield green fodder seeds.", hi: "उच्च उपज वाले हरे चारे के बीज।" },
+          imageUrl: "https://via.placeholder.com/400?text=Chari+Seeds" // Placeholder Fix
+        },
+        {
+          id: 'ghee', category: 'dairy',
+          name: { en: "Pure Desi Ghee", hi: "शुद्ध देसी घी" },
+          price: 650,
+          description: { en: "Homemade pure ghee. Rich aroma.", hi: "घर का बना शुद्ध घी। भरपूर सुगंध।" },
+          imageUrl: getRawUrl("ghee.jpg")
+        },
+        {
+          id: 'paneer', category: 'dairy',
+          name: { en: "Fresh Paneer", hi: "ताज़ा पनीर" },
+          price: 380,
+          description: { en: "Soft, fresh, and hygienic paneer.", hi: "नरम, ताजा और स्वच्छ पनीर।" },
+          imageUrl: "https://via.placeholder.com/400?text=Fresh+Paneer"
+        },
+        {
+          id: 'dahi', category: 'dairy',
+          name: { en: "Fresh Dahi (Curd)", hi: "ताज़ा दही" },
+          price: 60,
+          description: { en: "Thick and creamy curd.", hi: "गाढ़ा और मलाईदार दही।" },
+          imageUrl: "https://via.placeholder.com/400?text=Fresh+Dahi"
+        }
+      ];
+
+      // --- COMPONENTS ---
+
+      const Clock = () => {
+        const [time, setTime] = useState(new Date());
+        useEffect(() => {
+          const timer = setInterval(() => setTime(new Date()), 1000);
+          return () => clearInterval(timer);
+        }, []);
+        
+        const timeString = time.toLocaleTimeString('en-IN', { timeZone: 'Asia/Kolkata', hour12: true, hour: '2-digit', minute: '2-digit' });
+        const dateString = time.toLocaleDateString('en-IN', { timeZone: 'Asia/Kolkata', day: '2-digit', month: 'short' });
+
+        return (
+          <div className="flex items-center space-x-2 text-green-800 bg-white/80 backdrop-blur-sm px-4 py-2 rounded-full shadow-sm border border-green-100">
+            <Icons.Clock size={16} />
+            <div className="text-sm font-semibold flex space-x-2">
+              <span>{timeString}</span>
+              <span className="hidden sm:inline">|</span>
+              <span className="hidden sm:inline">{dateString}</span>
+            </div>
+          </div>
+        );
+      };
+
+      const LoginModal = ({ language, onClose, onLogin }) => {
+        const [formData, setFormData] = useState({
+          name: '',
+          phone: '',
+          village: '',
+          pincode: ''
+        });
+
+        const handleSubmit = (e) => {
+          e.preventDefault();
+          if(formData.name && formData.phone && formData.village) {
+            // Simulate simple login/data check
+            onLogin({ ...formData, uid: 'user_' + Date.now() });
+          } else {
+            alert("Please fill required fields / कृपया आवश्यक फ़ील्ड भरें");
+          }
+        };
+
+        return (
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
+            <div className="bg-white rounded-2xl shadow-2xl w-full max-w-md overflow-hidden animate-fadeIn">
+              <div className="bg-green-700 p-4 flex justify-between items-center text-white">
+                <h2 className="text-lg font-bold">{TRANSLATIONS.header.login[language]}</h2>
+                <button onClick={onClose}><Icons.X size={24} /></button>
+              </div>
+              <form onSubmit={handleSubmit} className="p-6 space-y-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Name / नाम *</label>
+                  <input required type="text" className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 outline-none" 
+                    value={formData.name} onChange={e => setFormData({...formData, name: e.target.value})} />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Phone Number / मोबाइल नंबर *</label>
+                  <div className="flex">
+                    <span className="bg-gray-100 border border-r-0 border-gray-300 rounded-l-lg p-3 text-gray-500">+91</span>
+                    <input required type="tel" maxLength="10" className="w-full p-3 border border-gray-300 rounded-r-lg focus:ring-2 focus:ring-green-500 outline-none" 
+                      value={formData.phone} onChange={e => setFormData({...formData, phone: e.target.value})} />
+                  </div>
+                </div>
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">Village / गाँव *</label>
+                    <input required type="text" className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 outline-none" 
+                      value={formData.village} onChange={e => setFormData({...formData, village: e.target.value})} />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">Pincode / पिन कोड</label>
+                    <input type="text" maxLength="6" className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 outline-none" 
+                      value={formData.pincode} onChange={e => setFormData({...formData, pincode: e.target.value})} />
+                  </div>
+                </div>
+                <button type="submit" className="w-full bg-green-600 text-white py-3 rounded-xl font-bold hover:bg-green-700 transition shadow-lg mt-4">
+                  Login
+                </button>
+              </form>
+            </div>
+          </div>
+        );
+      };
+
+      const ProductModal = ({ product, language, onClose }) => {
+        const t = TRANSLATIONS.products;
+        const [selectedVariant, setSelectedVariant] = useState(null);
+
+        useEffect(() => {
+          if (product.variants && product.variants.length > 0) {
+            setSelectedVariant(product.variants[0]);
+          } else {
+            setSelectedVariant(null);
+          }
+        }, [product]);
+
+        const currentPrice = selectedVariant ? selectedVariant.price : product.price;
+        const currentImageUrl = selectedVariant ? selectedVariant.img : product.imageUrl;
+
+        const handleWhatsAppOrder = () => {
+          let message = `Namaste, I want to order *${product.name.en}*.`;
+          if (selectedVariant) {
+            message += `\nOption: ${selectedVariant.name.en}`;
+            message += `\nPrice: ₹${selectedVariant.price}`;
+          } else {
+            message += `\nPrice: ₹${product.price}`;
+          }
+          const url = `https://wa.me/${PHONE_NUMBER.replace('+', '')}?text=${encodeURIComponent(message)}`;
+          window.open(url, '_blank');
+        };
+
+        return (
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
+            <div className="bg-white rounded-2xl shadow-2xl w-full max-w-lg overflow-hidden animate-fadeIn max-h-[90vh] flex flex-col">
+              <div className="relative h-56 flex-shrink-0">
+                <img 
+                  src={currentImageUrl} 
+                  alt={product.name[language]} 
+                  className="w-full h-full object-cover" 
+                  onError={(e) => (e.currentTarget.src = 'https://via.placeholder.com/400?text=Image+Error')}
+                />
+                <button onClick={onClose} className="absolute top-4 right-4 bg-white/80 p-2 rounded-full hover:bg-white transition-colors shadow-lg">
+                  <Icons.X size={24} className="text-gray-800" />
+                </button>
+              </div>
+              <div className="p-6 overflow-y-auto custom-scrollbar flex-1">
+                <div className="flex justify-between items-start mb-2">
+                  <h3 className="text-2xl font-bold text-gray-900 leading-tight">{product.name[language]}</h3>
+                  <div className="text-right">
+                    <p className="text-3xl font-bold text-green-600">₹{currentPrice}</p>
+                    {product.variants && <span className="text-xs text-gray-500">per unit/pack</span>}
+                  </div>
+                </div>
+                {product.variants && (
+                  <div className="mb-6">
+                    <p className="text-sm font-semibold text-gray-700 mb-2">{t.selectOption[language]}</p>
+                    <div className="grid grid-cols-2 gap-3">
+                      {product.variants.map((variant) => (
+                        <button key={variant.id} onClick={() => setSelectedVariant(variant)}
+                          className={`px-4 py-3 rounded-lg border-2 text-left transition-all ${selectedVariant?.id === variant.id ? 'border-green-500 bg-green-50 text-green-800' : 'border-gray-200 hover:border-green-200'}`}>
+                          <div className="flex justify-between items-center mb-1">
+                            <span className="font-bold">{variant.name[language]}</span>
+                            {selectedVariant?.id === variant.id && <Icons.Check size={16} className="text-green-600" />}
+                          </div>
+                          <span className="text-sm text-gray-600">₹{variant.price}</span>
+                        </button>
+                      ))}
+                  </div>
+                )}
+                <div className="bg-green-50 p-4 rounded-xl mb-6">
+                  <p className="text-gray-700 leading-relaxed whitespace-pre-line text-sm md:text-base">{product.description[language]}</p>
+                </div>
+              </div>
+              <div className="p-4 border-t border-gray-100 bg-white">
+                <button onClick={handleWhatsAppOrder} className="w-full flex items-center justify-center space-x-2 bg-green-600 hover:bg-green-700 text-white py-4 rounded-xl font-bold text-lg transition-transform active:scale-95 shadow-lg shadow-green-200">
+                  <Icons.MessageCircle size={24} /><span>{t.orderNow[language]}</span>
+                </button>
+              </div>
+            </div>
+          </div>
+        );
+      };
+
+      const Dashboard = ({ user, language, onClose, onLogout }) => {
+        const t = TRANSLATIONS.dashboard;
+        return (
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
+            <div className="bg-white rounded-2xl shadow-2xl w-full max-w-lg overflow-hidden flex flex-col max-h-[90vh]">
+              <div className="bg-green-600 p-6 flex justify-between items-center text-white">
+                <div className="flex items-center space-x-3">
+                  <div className="bg-white/20 p-2 rounded-full"><Icons.User size={24} /></div>
+                  <div><h2 className="text-xl font-bold">{t.title[language]}</h2></div>
+                </div>
+                <button onClick={onClose} className="hover:bg-white/20 p-2 rounded-full transition-colors"><Icons.X size
